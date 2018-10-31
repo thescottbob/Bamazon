@@ -1,9 +1,9 @@
--- Drops the 'bamazon_DB' if it exists currently --
+-- Drops the bamazon_DB if it exists currently --
 DROP DATABASE IF EXISTS bamazon_DB;
--- Creates the 'bamazon_db' database --
+-- Creates the bamazon_db database --
 CREATE DATABASE bamazon_DB;
 
--- Make it so all of the following code will affect 'bamazon_DB' --
+-- Make it so all of the following code will affect bamazon_DB --
 USE bamazon_DB;
 
 -- ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password' --
