@@ -27,14 +27,14 @@ connection.connect(function(err, res) {
 })
 
 // Stores the stock_quantity of the selected item from MySQL
-function stockQuantity(){
+var stockQuantity = function stockQuantity() {
     connection.query("SELECT stock_quantity FROM products WHERE item_id", function(err, res) {
       if (err) throw err;
     })
-}
+};
 
 // Declare a function which will allow the user to make another purchase
-function nextPurchase(){
+function nextPurchase() {
   inquirer
     .prompt([
       {
@@ -48,54 +48,45 @@ function nextPurchase(){
 
 function beginOrder() {
     // Prompt user for info about the first item they wish to purchase
-    console.log("beginOrder");
     inquirer
       .prompt([
         {
-          type: "input",
           name: "item_id",
+          type: "input",
           message: "What's the ID of the item you'd like to purchase?"
+        },
+        {  
+          name: "purchase_quantity",
+          type: "input",
+          message: "How many units of this item would you like to purchase?"
         }
-        // ,
-        // {  
-        //   name: "purchase_quantity",
-        //   type: "input",
-        //   message: "How many units of this item would you like to purchase?"
-        // }
       ])
-      .then(function(val) {
-        console.log("val");
-      })
+      console.log("beginOrder");
     }
 
-function completeOrder(){
-  console.log("completeOrder");
-  beginOrder().then(function(response) {
-    console.log("begin");
-    console.log(response);
-    var orderQuantity = response.message;
+function completeOrder() {
+    beginOrder();
+
+    var orderQuantity = 0;
     if (orderQuantity <= stockQuantity) { 
         console.log("Congratulations! Your purchase has been completed.");
         stockQuantity += (orderQuantity * -1);
 
     // Allow the user to make another purchase
-    nextPurchase().then(function(response) {
+    nextPurchase();
+    
         if (response.choice === "Yes") {
           completeOrder();
         }
         else {
-          // connection.end();
+          connection.end();
         } 
-      })
-    }
+      }
     
     // If the user wants to buy more of an item than is currently in stock
     else {
         console.log("Sorry! We do not currently have enough of that item in stock.");
-    completeOrder();
     }
-  }
-  )
-}
 
 completeOrder();
+};
