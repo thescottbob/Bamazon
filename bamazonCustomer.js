@@ -1,65 +1,101 @@
+// Install and require necessary NPM packages
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+// Create a connection to MySQL (whenever this variable is used)
 var connection = mysql.createConnection({
   host: "localhost",
-
-  // Your port; if not 3306
   port: 3306,
-
-  // Your username
   user: "root",
-
-  // Your password
   password: "",
   database: "bamazon_DB"
 });
 
-connection.connect(function(err) {
-  if (err) throw err;
-  console.log("connected as id " + connection.threadId);
-  afterConnection();
-});
-
+// Declare a function controlling what will happen after connecting to MySQL
 function afterConnection() {
+  console.log("Gotcha!");
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
     console.log(res);
-  });
+  })
 }
 
-function prompts() {
-    // Prompt user for info about the item they wish to purchase
+// First connection to MySQL
+connection.connect(function(err, res) {
+  if (err) throw err;
+  afterConnection();
+})
+
+// Stores the stock_quantity of the selected item from MySQL
+function stockQuantity(){
+    connection.query("SELECT stock_quantity FROM products WHERE item_id", function(err, res) {
+      if (err) throw err;
+    })
+}
+
+// Declare a function which will allow the user to make another purchase
+function nextPurchase(){
+  inquirer
+    .prompt([
+      {
+        name: "next_item",
+        type: "list",
+        message: "Would you like to purchase another item?",
+        choices: ["Yes", "No"]
+      }
+    ])
+  }
+
+function beginOrder() {
+    // Prompt user for info about the first item they wish to purchase
+    console.log("beginOrder");
     inquirer
       .prompt([
         {
+          type: "input",
           name: "item_id",
-          type: "input",
           message: "What's the ID of the item you'd like to purchase?"
-        },
-        {  
-          name: "purchase_quantity",
-          type: "input",
-          message: "How many units of this item would you like to purchase?"
         }
+        // ,
+        // {  
+        //   name: "purchase_quantity",
+        //   type: "input",
+        //   message: "How many units of this item would you like to purchase?"
+        // }
       ])
-    };
+      .then(function(val) {
+        console.log("val");
+      })
+    }
 
-    prompts();
+function completeOrder(){
+  console.log("completeOrder");
+  beginOrder().then(function(response) {
+    console.log("begin");
+    console.log(response);
+    var orderQuantity = response.message;
+    if (orderQuantity <= stockQuantity) { 
+        console.log("Congratulations! Your purchase has been completed.");
+        stockQuantity += (orderQuantity * -1);
 
-    function checkout() {
-        if(process.argv[0] >0 && process.argv[0] <11){
+    // Allow the user to make another purchase
+    nextPurchase().then(function(response) {
+        if (response.choice === "Yes") {
+          completeOrder();
+        }
+        else {
+          // connection.end();
+        } 
+      })
+    }
+    
+    // If the user wants to buy more of an item than is currently in stock
+    else {
+        console.log("Sorry! We do not currently have enough of that item in stock.");
+    completeOrder();
+    }
+  }
+  )
+}
 
-          function err() {
-            if (err) throw err;
-            console.log("You've come so far!");
-            // Re-prompt the user for if they want to buy anything else
-            // start();
-          }
-        };
-      };
-
-      checkout();
-
-// If the user opts to not purchase anything:
-    // connection.end();
+completeOrder();
