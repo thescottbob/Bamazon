@@ -13,11 +13,10 @@ var connection = mysql.createConnection({
 
 // Declare a function controlling what will happen after connecting to MySQL
 function afterConnection() {
-  console.log("Gotcha!");
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
     console.log(res);
-  })
+  });
 }
 
 // First connection to MySQL
@@ -26,67 +25,94 @@ connection.connect(function(err, res) {
   afterConnection();
 })
 
-// Stores the stock_quantity of the selected item from MySQL
-var stockQuantity = function stockQuantity() {
-    connection.query("SELECT stock_quantity FROM products WHERE item_id", function(err, res) {
-      if (err) throw err;
-    })
-};
+// Selects the stock_quantity of the selected item from MySQL
+function stockQuantity() {
+  connection.query("SELECT stock_quantity FROM products", function(err, res) {
+    if (err) throw err;
+    console.log(res);
+  });
+}
 
-// Declare a function which will allow the user to make another purchase
-function nextPurchase() {
-  inquirer
-    .prompt([
+function completeOrder() {
+  // Prompt user for info about the first item they wish to purchase
+  inquirer.prompt([
+    {
+      name: "item_id",
+      type: "input",
+      message: "What's the ID of the item you'd like to purchase?"
+    },
+    {
+      name: "purchase_quantity",
+      type: "input",
+      message: "How many units of this item would you like to purchase?"
+    }
+  ]);
+
+  var orderQuantity = process.argv[0];
+  if (orderQuantity < stockQuantity || orderQuantity === stockQuantity) {
+    console.log("Congratulations! Your purchase has been completed.");
+    stockQuantity -= orderQuantity;
+
+    // Allow the user to make another purchase
+    inquirer.prompt([
       {
         name: "next_item",
         type: "list",
         message: "Would you like to purchase another item?",
         choices: ["Yes", "No"]
       }
-    ])
-  }
+    ]);
 
-function beginOrder() {
-    // Prompt user for info about the first item they wish to purchase
-    inquirer
-      .prompt([
+    if (choices === "Yes") {
+      inquirer.prompt([
         {
           name: "item_id",
           type: "input",
           message: "What's the ID of the item you'd like to purchase?"
         },
-        {  
+        {
           name: "purchase_quantity",
           type: "input",
           message: "How many units of this item would you like to purchase?"
         }
-      ])
-      console.log("beginOrder");
-    }
-
-function completeOrder() {
-    beginOrder();
-
-    var orderQuantity = 0;
-    if (orderQuantity <= stockQuantity) { 
-        console.log("Congratulations! Your purchase has been completed.");
-        stockQuantity += (orderQuantity * -1);
-
-    // Allow the user to make another purchase
-    nextPurchase();
-    
-        if (response.choice === "Yes") {
-          completeOrder();
-        }
-        else {
-          connection.end();
-        } 
-      }
-    
-    // If the user wants to buy more of an item than is currently in stock
+      ]);
+    } 
     else {
-        console.log("Sorry! We do not currently have enough of that item in stock.");
+      connection.end();
     }
+  }
 
-completeOrder();
-};
+  // If the user wants to buy more of an item than is currently in stock
+  else {
+    console.log("Sorry! We do not currently have enough of that item in stock.");
+    // Allow the user to make another purchase
+    inquirer.prompt([
+      {
+        name: "next_item",
+        type: "list",
+        message: "Would you like to purchase another item?",
+        choices: ["Yes", "No"]
+      }
+    ]);
+
+    if (choices === "Yes") {
+      inquirer.prompt([
+        {
+          name: "item_id",
+          type: "input",
+          message: "What's the ID of the item you'd like to purchase?"
+        },
+        {
+          name: "purchase_quantity",
+          type: "input",
+          message: "How many units of this item would you like to purchase?"
+        }
+      ]);
+    } 
+    else {
+      connection.end();
+    }
+  }
+}
+
+setTimeout(completeOrder, 1000);

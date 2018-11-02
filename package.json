@@ -1,0 +1,22 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "bamazon allows user to make purchases via the command line",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "node bamazonCustomer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thescottbob/Bamazon.git"
+  },
+  "author": "thescottbob",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thescottbob/Bamazon/issues"
+  },
+  "homepage": "https://github.com/thescottbob/Bamazon#readme",
+  "dependencies": {
+    "readline-sync": "^1.4.9"
+  }
+}

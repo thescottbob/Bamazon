@@ -1,1 +1,4 @@
 # Bamazon
+
+This application allows the user to make purchases via the command line. The user
+will first be provided with a table of 10 items. Then they will be prompted to select the ID of one of those items for purchase. Once the user provided this information, along with the quantity they wish to purchase, the program evaluates that quantity to ensure there are enough units in stock to complete the order. If there are, the order is completed. Whether or not the first order is successful, the user is prompted to make one additional order before the connection to MySQL (where the data is pulled from) ends.
