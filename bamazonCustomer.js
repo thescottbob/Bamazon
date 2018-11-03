@@ -27,7 +27,8 @@ connection.connect(function(err, res) {
 
 // Selects the stock_quantity of the selected item from MySQL
 function stockQuantity() {
-  connection.query("SELECT stock_quantity FROM products", function(err, res) {
+  var item_id = process.argv[0];
+  connection.query(`SELECT stock_quantity FROM products WHERE item_id=${item_id}`, function(err, res) {
     if (err) throw err;
     console.log(res);
   });
@@ -48,7 +49,6 @@ function completeOrder() {
     }
   ]);
 
-  var orderQuantity = process.argv[0];
   if (orderQuantity < stockQuantity || orderQuantity === stockQuantity) {
     console.log("Congratulations! Your purchase has been completed.");
     stockQuantity -= orderQuantity;
@@ -57,7 +57,7 @@ function completeOrder() {
     inquirer.prompt([
       {
         name: "next_item",
-        type: "list",
+        type: "confirm",
         message: "Would you like to purchase another item?",
         choices: ["Yes", "No"]
       }
