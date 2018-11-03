@@ -23,36 +23,45 @@ function afterConnection() {
 connection.connect(function(err, res) {
   if (err) throw err;
   afterConnection();
-})
-
-// Selects the stock_quantity of the selected item from MySQL*
-
-function stockQuantity() {
-  var item_id = process.argv[0];
-  connection.query(`SELECT stock_quantity FROM products WHERE item_id = ${item_id}`, function(err, res) {
-    if (err) throw err;
-    console.log(res);
-  });
-}
-
-// Selecting specific records: SELECT * FROM [table] WHERE [column] = [value];
-//  (Selectors: <, >, !=; combine multiple selectors with AND, OR)
-
+});
 
 function completeOrder() {
   // Prompt user for info about the first item they wish to purchase
-  inquirer.prompt([
-    {
-      name: "item_id",
-      type: "input",
-      message: "What's the ID of the item you'd like to purchase?"
-    },
-    {
-      name: "purchase_quantity",
-      type: "input",
-      message: "How many units of this item would you like to purchase?"
-    }
-  ]);
+  inquirer
+    .prompt([
+      {
+        name: "item_id",
+        type: "input",
+        message: "What's the ID of the item you'd like to purchase?"
+      }
+    ])
+    .then(function(inqResp) {
+      var orderID = inqResp.orderID;
+      // Selects the stock_quantity of the selected item from MySQL
+      var stockQuantity = function() {
+        connection.query(
+          `SELECT stock_quantity FROM products WHERE item_id = ${orderID}`,
+          function(err, res) {
+            if (err) throw err;
+            console.log(res);
+          }
+        );
+      };
+      console.log(orderID);
+    });
+
+  inquirer
+    .prompt([
+      {
+        name: "purchase_quantity",
+        type: "input",
+        message: "How many units of this item would you like to purchase?"
+      }
+    ])
+    .then(function(inq2Resp) {
+      var orderQuantity = inq2Resp.orderQuantity;
+      console.log(orderQuantity);
+    });
 
   if (orderQuantity < stockQuantity || orderQuantity === stockQuantity) {
     console.log("Congratulations! Your purchase has been completed.");
@@ -81,15 +90,16 @@ function completeOrder() {
           message: "How many units of this item would you like to purchase?"
         }
       ]);
-    } 
-    else {
+    } else {
       connection.end();
     }
   }
 
   // If the user wants to buy more of an item than is currently in stock
   else {
-    console.log("Sorry! We do not currently have enough of that item in stock.");
+    console.log(
+      "Sorry! We do not currently have enough of that item in stock."
+    );
     // Allow the user to make another purchase
     inquirer.prompt([
       {
@@ -113,8 +123,7 @@ function completeOrder() {
           message: "How many units of this item would you like to purchase?"
         }
       ]);
-    } 
-    else {
+    } else {
       connection.end();
     }
   }
