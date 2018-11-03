@@ -25,14 +25,19 @@ connection.connect(function(err, res) {
   afterConnection();
 })
 
-// Selects the stock_quantity of the selected item from MySQL
+// Selects the stock_quantity of the selected item from MySQL*
+// *This code is not working :/
 function stockQuantity() {
-  var item_id = process.argv[0];
-  connection.query(`SELECT stock_quantity FROM products WHERE item_id=${item_id}`, function(err, res) {
+  var item_id
+  connection.query(`SELECT stock_quantity FROM products WHERE item_id = ${item_id}`, function(err, res) {
     if (err) throw err;
     console.log(res);
   });
 }
+
+// Selecting specific records: SELECT * FROM [table] WHERE [column] = [value];
+//  (Selectors: <, >, !=; combine multiple selectors with AND, OR)
+
 
 function completeOrder() {
   // Prompt user for info about the first item they wish to purchase
