@@ -26,9 +26,9 @@ connection.connect(function(err, res) {
 })
 
 // Selects the stock_quantity of the selected item from MySQL*
-// *This code is not working :/
+
 function stockQuantity() {
-  var item_id
+  var item_id = process.argv[0];
   connection.query(`SELECT stock_quantity FROM products WHERE item_id = ${item_id}`, function(err, res) {
     if (err) throw err;
     console.log(res);
